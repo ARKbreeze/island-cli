@@ -43,6 +43,7 @@ var cac_1 = require("cac");
 var console_1 = require("console");
 var dev_1 = require("./dev");
 var path_1 = __importDefault(require("path"));
+var build_1 = require("./build");
 // 版本信息
 var version = require('../../package.json').version;
 // 初始化cli
@@ -72,9 +73,25 @@ cli
 }); });
 //注册build命令
 cli.command('build [root]', '启动打包服务').action(function (root) { return __awaiter(void 0, void 0, void 0, function () {
+    var error_1;
     return __generator(this, function (_a) {
-        (0, console_1.log)('build start on', root);
-        return [2 /*return*/];
+        switch (_a.label) {
+            case 0:
+                (0, console_1.log)('build start on', root);
+                root = root ? path_1.default.resolve(root) : process.cwd();
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, (0, build_1.build)(root)];
+            case 2:
+                _a.sent();
+                return [3 /*break*/, 4];
+            case 3:
+                error_1 = _a.sent();
+                console.log(error_1);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
     });
 }); });
 //命令解析

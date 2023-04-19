@@ -2,6 +2,7 @@ import { cac } from 'cac';
 import { log } from 'console';
 import { createServer } from './dev';
 import path from 'path';
+import { build } from './build';
 
 // 版本信息
 
@@ -26,6 +27,13 @@ cli
 //注册build命令
 cli.command('build [root]', '启动打包服务').action(async (root: string) => {
   log('build start on', root);
+  root = root ? path.resolve(root) : process.cwd();
+
+  try {
+    await build(root);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 //命令解析
