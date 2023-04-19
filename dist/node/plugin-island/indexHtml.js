@@ -35,23 +35,62 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createServer = void 0;
-var vite_1 = require("vite");
-var indexHtml_1 = require("./plugin-island/indexHtml");
-var plugin_react_1 = __importDefault(require("@vitejs/plugin-react"));
-function createServer(root) {
-    if (root === void 0) { root = process.cwd(); }
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, (0, vite_1.createServer)({
-                    root: root,
-                    plugins: [(0, indexHtml_1.pluginIndexHtml)(), (0, plugin_react_1.default)()],
-                })];
-        });
-    });
+exports.pluginIndexHtml = void 0;
+// htmlPlugin
+var promises_1 = require("fs/promises");
+var constants_1 = require("../constants");
+function pluginIndexHtml() {
+    return {
+        name: 'island:index-html',
+        // 什么阶段执行的 serve  开发
+        apply: 'serve',
+        transformIndexHtml: function (html) {
+            return {
+                html: html,
+                tags: [
+                    {
+                        tag: 'script',
+                        attrs: {
+                            type: 'module',
+                            src: "/@fs/".concat(constants_1.CLIENT_ENTRY_PATH),
+                        },
+                        injectTo: 'body',
+                    },
+                ],
+            };
+        },
+        configureServer: function (server) {
+            var _this = this;
+            return function () {
+                server.middlewares.use(function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
+                    var html, e_1;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, (0, promises_1.readFile)(constants_1.DEFAULT_HTML_PATH, 'utf-8')];
+                            case 1:
+                                html = _a.sent();
+                                _a.label = 2;
+                            case 2:
+                                _a.trys.push([2, 4, , 5]);
+                                return [4 /*yield*/, server.transformIndexHtml(req.url ? req.url : '', html, req.originalUrl)];
+                            case 3:
+                                // 处理的返回值   这是个钩子
+                                html = _a.sent();
+                                res.statusCode = 200;
+                                res.setHeader('Content-Type', 'text/html');
+                                res.end(html);
+                                return [3 /*break*/, 5];
+                            case 4:
+                                e_1 = _a.sent();
+                                // 出错就把 错误传递下去
+                                return [2 /*return*/, next(e_1)];
+                            case 5: return [2 /*return*/];
+                        }
+                    });
+                }); });
+            };
+        },
+    };
 }
-exports.createServer = createServer;
+exports.pluginIndexHtml = pluginIndexHtml;
